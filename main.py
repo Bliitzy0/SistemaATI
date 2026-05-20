@@ -9,8 +9,26 @@ from datetime import date
 from typing import Optional, List
 import models
 from database import get_db
+import os
+from dotenv import load_dotenv
+from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
+
+load_dotenv()
 
 app = FastAPI()
+
+# azure_scheme = SingleTenantAzureAuthorizationCodeBearer(
+#     app_client_id=os.environ.get("AZURE_CLIENT_ID", "mock_client_id"),
+#     tenant_id=os.environ.get("AZURE_TENANT_ID", "mock_tenant_id"),
+#     scopes={
+#         f'api://{os.environ.get("AZURE_CLIENT_ID", "")}/user_impersonation': 'user_impersonation',
+#     }
+# )
+
+# @app.on_event('startup')
+# async def load_config() -> None:
+#     await azure_scheme.openid_config.load_config()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -119,6 +137,7 @@ def enviar_correo_aprobacion(
         return False
 
 
+# @app.post("/api/solicitudes", dependencies=[Depends(azure_scheme)])
 @app.post("/api/solicitudes")
 def crear_solicitud(solicitud: SolicitudCreate, db: Session = Depends(get_db)):
     # 1. Buscar al empleado en nuestro directorio local por nombre
